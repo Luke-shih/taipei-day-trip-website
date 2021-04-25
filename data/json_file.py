@@ -59,7 +59,7 @@ def data():
         db.session.add(trip)
         db.session.commit()
 
-if __name__ == '__main__':  # 程序的入口
+if __name__ == '__main__':
     with app.app_context():
         db.init_app(app)
         db.create_all()
