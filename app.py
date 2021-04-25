@@ -7,7 +7,7 @@ app=Flask(__name__)
 app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
 app.config["TEMPLATES_AUTO_RELOAD"]=True # True 當 flask 偵測到 template 有修改會自動更新
 app.config["JSON_SORT_KEYS"]=False # False 不以物件名稱進行排序顯示
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:1234@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
 
 
 @app.route("/")
