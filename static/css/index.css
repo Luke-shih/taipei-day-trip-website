@@ -1,3 +1,4 @@
+  
 html,
 body,
 div,
@@ -230,7 +231,7 @@ nav ~ div{
     margin: 55px auto;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: space-between;
 }
 
 .attraction-box{
@@ -343,5 +344,4 @@ nav ~ div{
     .attraction-box img{
         height: calc((100vw - 38px) * 0.6) ;
     }
-
 }
