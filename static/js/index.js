@@ -12,9 +12,8 @@ let keyword = null;
 
 loadAttractions();
 
-// ================================
 // ======= 滾動載入後續頁面 =========
-// ================================
+
 // Window.innerHeight = 瀏覽器窗口的視口（viewport）高度（以像素为單位）；如果有水平滾動條，也包括滾動條高度。
 // Window.scrollY = 返回文檔在垂直方向已滾動的像素值。
 // document.body.scrollHeight = 網頁正文全文高
@@ -58,10 +57,8 @@ function removeAttractions(){
         attractionsContainer.removeChild(attractionsContainer.lastChild);
     }
 }
+// fetch attractions API // fetch 網址
 
-// =============================================
-// ==== fetch attractions API // fetch 網址 ====
-// =============================================
 async function getAttractionsData(pageNum, keyword=null){
     let url;
     if(keyword){
@@ -92,9 +89,9 @@ function showAttractions(){
     }
 }
 
-// ==========================================================
-// ======= create attraction item & DOM appendChild()========
-// ==========================================================
+
+// create attraction item & DOM appendChild()
+
 
 function createAttractionItem(attraction){
 
@@ -142,7 +139,7 @@ function createAttractionItem(attraction){
     return attractionBox;
 }
 
-// check if all item in a page is loaded (called in createAttractionItem function )
+// check if all item in a page is loaded 
 function imageLoaded(){
     imagesLoadNum++;
     if(imagesLoadNum === totalImagesToLoad && nextPage !== null){

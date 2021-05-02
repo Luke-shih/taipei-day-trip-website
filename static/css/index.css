@@ -344,4 +344,5 @@ nav ~ div{
     .attraction-box img{
         height: calc((100vw - 38px) * 0.6) ;
     }
+
 }
