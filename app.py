@@ -2,8 +2,11 @@ from flask import Flask, request, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import math, json
+from flask_cors import CORS
+
 
 app=Flask(__name__)
+CORS(app, supports_credentials=True)
 app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
 app.config["TEMPLATES_AUTO_RELOAD"]=True # True 當 flask 偵測到 template 有修改會自動更新
 app.config["JSON_SORT_KEYS"]=False # False 不以物件名稱進行排序顯示
@@ -67,18 +70,22 @@ travelSchema = travelSchema(many=True)
 def attractions():
     page = request.args.get('page', 0, type = int)
     keyword = request.args.get('keyword', None)
-
     if keyword is None:
-        data = travel.query.filter_by(page = page).all()
-        if data:
-            output = travelSchema.dump(data)
-            return jsonify({"nextPage": page +1, "data": output})
+        sql_cmd_keyword = f"""SELECT * FROM travel ORDER BY id LIMIT {int(page)*12},12;"""
+        query = db.engine.execute(sql_cmd_keyword)
+        output = travelSchema.dump(query)
+        if output != []:
+            for x in output:
+                x['images'] = x['images'].split(",")
+            return jsonify({"nextPage": page + 1, "data": output})
         else:
             return jsonify({"error": True, "message": "error"}), 500
     elif page is None:
-        sql_cmd_pageNone = f"""SELECT * FROM travel WHERE name LIKE "%%{keyword}%%"""
+        sql_cmd_pageNone = f"""
+            SELECT * FROM travel WHERE name LIKE "%%{keyword}%%"
+        """
         query_data_page = db.engine.execute(sql_cmd_pageNone)
-        keywordOutput = travelSchema.dump(query_data_page)
+        keywordOutput = tripSchema.dump(query_data_page)
         return jsonify({"data": keywordOutput})
     else:
         sql_cmd = f"""SELECT * FROM travel WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {int(page)*12},12;"""
@@ -125,4 +132,4 @@ def getAttById(attractionId):
 if __name__ == '__main__':
 	with app.app_context():
 		db.init_app(app)
-	app.run(host="0.0.0.0", port=3000)
+	app.run(host="0.0.0.0", port=3000, debug=True)
