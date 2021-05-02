@@ -30,14 +30,14 @@ class travel(db.Model):
     description = db.Column(db.Text, nullable=False)
     address = db.Column(db.String(255), nullable=False)
     transport = db.Column(db.Text)
-    MRT = db.Column(db.String(255))
+    mrt = db.Column(db.String(255))
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     images = db.Column(db.String(255), nullable=False)
     page = db.Column(db.Integer, primary_key=False, default=default)
 
     def __repr__(self):
-        return f"travel('{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.MRT}', '{self.latitude}', '{self.longitude}', '{self.images}', '{self.page}')"
+        return f"travel('{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.mrt}', '{self.latitude}', '{self.longitude}', '{self.images}', '{self.page}')"
 
 def data():
     with open("taipei-attractions.json", mode="r", encoding="utf-8") as file:
@@ -50,12 +50,12 @@ def data():
         description = result['xbody']
         address = result['address']
         transport = result['info']
-        MRT = result['MRT']
+        mrt = result['MRT']
         latitude = result['latitude']
         longitude = result["longitude"]
         images = result["file"].replace("http", " http").split(' ')[1]
 
-        trip = travel(name=name, category=category, description=description, address=address, transport=transport, MRT=MRT, latitude=latitude, longitude=longitude, images=images)
+        trip = travel(name=name, category=category, description=description, address=address, transport=transport, mrt=mrt, latitude=latitude, longitude=longitude, images=images)
         db.session.add(trip)
         db.session.commit()
 
