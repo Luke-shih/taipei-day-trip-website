@@ -1,7 +1,7 @@
 const attractionsContainer = document.getElementById('attractionsContainer'); // 擷取 HTML 上 <div class="container" id="attractionsContainer">
 const searchForm = document.getElementById('searchForm'); // 擷取 HTML上 <form action="#" class="search-form" id="searchForm">
 const searchKeyword = document.getElementById('searchKeyword'); // 擷取 HTML 上 input 搜尋內容
-const ipUrl = "52.194.136.133" // app.py 連接資料位置
+const ipUrl = "127.0.0.1" // app.py 連接資料位置
 
 let nextPage = 0;
 let attractionsArray = [];
