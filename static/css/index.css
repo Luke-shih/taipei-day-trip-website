@@ -178,9 +178,7 @@ nav ~ div{
     font-weight: bold;
     line-height: 24px;  
 }
-
 /* ------------- search ------------- */
-
 .search-form{
     margin-top:25px;
     display: flex;
@@ -225,9 +223,7 @@ nav ~ div{
     width:30px;
     height:30px;
 }
-
 /* ---------- js attraction ---------*/
-
 .container{
     width: 90%;
     max-width: 1200px;
@@ -294,7 +290,6 @@ nav ~ div{
     font-size: 18px;
 }
 /* -------------------------------------------- */
-
 .footer{
     background: #757575;
 }
@@ -305,9 +300,7 @@ nav ~ div{
     font-size: 13.3px; 
     text-align: center;
 }
-
 /* -------------------------------------------- */
-
 @media only screen and (max-width:1200px){
     .nav{
         width: 50%;

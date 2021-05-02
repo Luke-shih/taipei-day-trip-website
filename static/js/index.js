@@ -10,7 +10,6 @@ let imagesLoadNum = 0;
 let totalImagesToLoad;
 let keyword = null;
 
-// initial loading
 loadAttractions();
 
 // ================================
@@ -93,7 +92,6 @@ function showAttractions(){
     }
 }
 
-
 // ==========================================================
 // ======= create attraction item & DOM appendChild()========
 // ==========================================================
@@ -143,7 +141,6 @@ function createAttractionItem(attraction){
     attractionImage.addEventListener('load',imageLoaded);
     return attractionBox;
 }
-
 
 // check if all item in a page is loaded (called in createAttractionItem function )
 function imageLoaded(){

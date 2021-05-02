@@ -4,7 +4,6 @@ from flask_marshmallow import Marshmallow
 import math, json
 from flask_cors import CORS
 
-
 app=Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
