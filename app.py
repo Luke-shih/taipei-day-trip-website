@@ -10,7 +10,7 @@ CORS(app, supports_credentials=True)
 app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
 app.config["TEMPLATES_AUTO_RELOAD"]=True # True 當 flask 偵測到 template 有修改會自動更新
 app.config["JSON_SORT_KEYS"]=False # False 不以物件名稱進行排序顯示
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:1234@localhost:3306/data"
 
 
 @app.route("/")
@@ -54,11 +54,10 @@ class travel(db.Model):
     mrt = db.Column(db.String(255))
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    images = db.Column(db.String(255), nullable=False)
-    page = db.Column(db.Integer, primary_key=False, default=default)
+    images = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
-        return f"travel('{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.mrt}', '{self.latitude}', '{self.longitude}', '{self.images}', '{self.page}')"
+        return f"travel('{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.mrt}', '{self.latitude}', '{self.longitude}', '{self.images}')"
 
 class travelSchema(ma.Schema):
 	class Meta:
@@ -93,6 +92,8 @@ def attractions():
         output = travelSchema.dump(query_data)
         if output != []:
             if len(output) < 12:
+                for y in output:
+                    y['images'] = y['images'].split(",")
                 return jsonify({"nextPage": None, "data": output})
             else:
                 sql_cmd_check = f"""SELECT * FROM travel WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {(int(page)+1)*12},12;"""
@@ -121,7 +122,7 @@ def getAttById(attractionId):
             "latitude": data.latitude,
             "longitude": data.longitude,
             "image": [
-                data.images
+                data.images.split(',')
             ]
         }})
     elif data is None:
