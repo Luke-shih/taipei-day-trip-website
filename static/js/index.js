@@ -19,9 +19,10 @@ loadAttractions();
 // document.body.scrollHeight = 網頁正文全文高
 if(nextPage !== null){
     window.addEventListener('scroll',()=>{
-        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-        const scrolled = window.scrollY;
-        if (scrolled === scrollable) {
+        var wScrollY = window.scrollY; // 當前滾動條位置
+        var wInnerH = window.innerHeight; // 當前視窗高度 (不會變)
+        var bcrollH = document.body.scrollHeight;
+        if(wScrollY + wInnerH >= bcrollH){
             loadAttractions(keyword);
             readyToLoadAgain = false;
         }
@@ -89,10 +90,7 @@ function showAttractions(){
     }
 }
 
-
 // create attraction item & DOM appendChild()
-
-
 function createAttractionItem(attraction){
 
     const attractionBox = document.createElement('div'); // 創建最外圈 <div class="attraction-box">
@@ -103,7 +101,7 @@ function createAttractionItem(attraction){
     linkContainer.setAttribute('target', '_blank'); // .setAttribute() 设置指定元素上的某个属性值。如果属性已经存在，则更新该值；否则，使用指定的名称和值添加一个新的属性。
     
     const attractionImage = document.createElement('img'); // 創建 img 節點
-    attractionImage.src = attraction.images
+    attractionImage.src = attraction.images[0]
     
     const attractionTextContainer = document.createElement('div'); // 創建 box 裡面最下方景點說明的 div
     attractionTextContainer.classList.add('attraction-text-container');
@@ -122,8 +120,6 @@ function createAttractionItem(attraction){
     const attractionCategory = document.createElement('p'); // 放 category 的值
     attractionCategory.classList.add('attraction-category');
     attractionCategory.textContent = attraction.category; // 載入 category 的值
-
-
     attractionBox.appendChild(linkContainer); // 將 a 連結接在 attractionBox 裡面
 
     linkContainer.appendChild(attractionImage); // 將 img 接在 a 連結 (整個抓取的 attraction 資訊) 裡面
@@ -146,5 +142,3 @@ function imageLoaded(){
         readyToLoadAgain = true;
     }
 }
-
-
