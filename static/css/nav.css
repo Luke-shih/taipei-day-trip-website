@@ -180,3 +180,9 @@ h3, p, label, span{
         margin-left: 10px;
     }
 }
+
+@media (min-width: 360px){
+    nav .nav{
+        width: 90%;
+    }
+}
