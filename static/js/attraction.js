@@ -22,7 +22,7 @@ afternoonRadio.addEventListener('click', ()=>{
 })
 
 // fetch api
-const ipUrl = "127.0.0.1";
+const ipUrl = "http://52.194.136.133";
 const attractionId = document.URL.split('/').slice(-1);
 const apiUrl = `http://${ipUrl}:3000/api/attraction/` + attractionId
 
