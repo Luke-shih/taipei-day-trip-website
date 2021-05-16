@@ -71,7 +71,6 @@ function signup(e){
         if(data.ok){
             alert("註冊成功")
             changeSignContainer() // 變換登入、註冊文字
-            cancelPopUpSignScene()  // *********************
         }else{
             message.innerText = data.message
         }
