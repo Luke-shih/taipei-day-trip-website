@@ -1,11 +1,8 @@
-from flask import Flask, request , render_template, jsonify, session, Blueprint
+from flask import Flask, request , render_template, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import math, os , json, mysql.connector, mysql.connector.pooling, re, pymysql
+import math, os , json, re, pymysql
 from flask_cors import CORS
-from datetime import datetime
-from mysql.connector import Error
-
 
 app=Flask(__name__)
 CORS(app, supports_credentials=True)
