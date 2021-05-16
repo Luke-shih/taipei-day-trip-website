@@ -20,7 +20,6 @@ function cancelPopUpSignScene(){
 function changeSignContainer(){
     signContainers.forEach(container=>{
         container.classList.toggle('show')
-        window.location.reload();  // ************
     })
 }
 
