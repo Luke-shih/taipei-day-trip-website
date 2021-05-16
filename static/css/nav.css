@@ -78,7 +78,7 @@ h3, p, label, span{
 
 /* 登入、註冊欄位 */
 .sign-bg{
-    position: fixed;
+  /*  position: fixed;*/
     z-index: 3;
     top: 0;
     left: 0;
