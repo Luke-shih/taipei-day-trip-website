@@ -5,10 +5,6 @@ footer{
     background: #757575;
 }
 
-.fixed-bottom{
-    position: absolute;
-}
-
 footer>p{
     text-align: center;
     width: 300px;
