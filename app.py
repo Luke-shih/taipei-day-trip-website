@@ -29,6 +29,7 @@ db = SQLAlchemy()
 ma = Marshmallow()
 
 # ----------------  models  ---------------- #
+
 i = 0
 def default():
     global i
@@ -142,9 +143,6 @@ def getAttById(attractionId):
         return jsonify({"error": True, "message": "景點編號錯誤"}), 400
     else:
         return jsonify({"error": True, "message": "伺服器內部錯誤"}), 500
-
-# @app.route("/booking")
-# def booking():
 
 @app.route("/api/user", methods=['POST', 'PATCH', 'DELETE', 'GET'])
 def login():
