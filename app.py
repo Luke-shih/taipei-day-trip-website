@@ -1,9 +1,8 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request , render_template, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import math, json
+import math, os , json, re, pymysql
 from flask_cors import CORS
-
 
 app=Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -11,7 +10,7 @@ app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
 app.config["TEMPLATES_AUTO_RELOAD"]=True # True 當 flask 偵測到 template 有修改會自動更新
 app.config["JSON_SORT_KEYS"]=False # False 不以物件名稱進行排序顯示
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
-
+app.secret_key = os.urandom(24)
 
 @app.route("/")
 def index():
@@ -28,6 +27,8 @@ def thankyou():
 
 db = SQLAlchemy()
 ma = Marshmallow()
+
+# ----------------  models  ---------------- #
 
 i = 0
 def default():
@@ -65,6 +66,19 @@ class travelSchema(ma.Schema):
 
 travelSchema = travelSchema(many=True)
 
+class user(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.Text, nullable=False)
+
+    def __init__(self, name, email, password):
+        self.name = name
+        self.email = email
+        self.password = password
+
+# ----------------  route  ---------------- #
+
 @app.route("/api/attractions")
 def attractions():
     page = request.args.get('page', 0, type = int)
@@ -84,7 +98,7 @@ def attractions():
             SELECT * FROM travel WHERE name LIKE "%%{keyword}%%"
         """
         query_data_page = db.engine.execute(sql_cmd_pageNone)
-        keywordOutput = tripSchema.dump(query_data_page)
+        keywordOutput = travelSchema.dump(query_data_page)
         return jsonify({"data": keywordOutput})
     else:
         sql_cmd = f"""SELECT * FROM travel WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {int(page)*12},12;"""
@@ -129,6 +143,52 @@ def getAttById(attractionId):
         return jsonify({"error": True, "message": "景點編號錯誤"}), 400
     else:
         return jsonify({"error": True, "message": "伺服器內部錯誤"}), 500
+
+@app.route("/api/user", methods=['POST', 'PATCH', 'DELETE', 'GET'])
+def login():
+    if request.method == 'POST': # signup
+        name = request.json['name']
+        email = request.json['email']
+        password = request.json['password']
+
+        mail = user.query.filter_by(email=email).first() # 檢查是否有重複
+        if (mail != None):
+            return jsonify({"error": True, "message": "email已註冊，請重新輸入"}), 400
+        else:
+            addUser = user(name, email, password)
+            db.session.add(addUser)
+            db.session.commit()
+            return jsonify({"ok": True}), 201
+
+    elif request.method == 'PATCH': # signin
+        email = request.json['email']
+        password = request.json['password']
+
+        mail = user.query.filter_by(email=email).first()
+        if mail is None:
+            return jsonify({"error": True, "message": "沒有此用戶"}), 400
+        else:
+            if mail.password == password:
+                session['email'] = mail.email
+                return jsonify({"ok": True}), 201
+            else:
+                return jsonify({"error": True, "message": "密碼錯誤"}), 400
+
+    elif request.method == 'DELETE':
+        session.pop('email')
+        return jsonify({"ok": True})
+
+    else: # GET
+        sesson = session.get('email')
+        if sesson:
+            query = user.query.filter_by(email=sesson).first()
+            return jsonify({"data": {
+                "id": query.id,
+                "name": query.name,
+                "email": query.email
+            }})
+        else:
+            return jsonify({"message": None})
 
 if __name__ == '__main__':
 	with app.app_context():
