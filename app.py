@@ -56,10 +56,6 @@ class travelSchema(ma.Schema):
 		fields = ('id', 'name', 'category', 'description', 'address', 'transport', 'mrt', 'latitude', 'longitude', 'images')
 
 travelSchema = travelSchema(many=True)
-relations = db.Table('relations',
-                    db.Column('user_id', db.Integer,db.ForeignKey('user.id')),
-                    db.Column('booking_id', db.Integer,db.ForeignKey('booking.id'))
-                    )
 
 class Attraction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
