@@ -114,7 +114,7 @@ def attractions():
     page = request.args.get('page', 0, type = int)
     keyword = request.args.get('keyword', None)
     if keyword is None:
-        sql_cmd_keyword = f"""SELECT * FROM Attraction ORDER BY id LIMIT {int(page)*12},12;"""
+        sql_cmd_keyword = f"""SELECT * FROM attraction ORDER BY id LIMIT {int(page)*12},12;"""
         query = db.engine.execute(sql_cmd_keyword)
         output = travelSchema.dump(query)
         if output != []:
@@ -131,7 +131,7 @@ def attractions():
         keywordOutput = travelSchema.dump(query_data_page)
         return jsonify({"data": keywordOutput})
     else:
-        sql_cmd = f"""SELECT * FROM Attraction WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {int(page)*12},12;"""
+        sql_cmd = f"""SELECT * FROM attraction WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {int(page)*12},12;"""
         query_data = db.engine.execute(sql_cmd)
         output = travelSchema.dump(query_data)
         if output != []:
@@ -140,7 +140,7 @@ def attractions():
                     y['images'] = y['images'].split(",")
                 return jsonify({"nextPage": None, "data": output})
             else:
-                sql_cmd_check = f"""SELECT * FROM Attraction WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {(int(page)+1)*12},12;"""
+                sql_cmd_check = f"""SELECT * FROM attraction WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {(int(page)+1)*12},12;"""
                 query_data_check = db.engine.execute(sql_cmd_check)
                 output_check = travelSchema.dump(query_data_check)
                 if output_check != []:
