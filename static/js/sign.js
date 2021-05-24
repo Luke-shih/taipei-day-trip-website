@@ -122,7 +122,10 @@ function signout(){
     .then(() => {
         signinCheck()
         alert("已登出！")
-        //頁面更新用
+        console.log("登出成功")
+        window.location.href="/"
+
+        //頁面更新
         try{ getUserData() }catch(e){}
         try{ getBookingData() }catch(e){}
         try{ fetchOrderAPI() }catch(e){}

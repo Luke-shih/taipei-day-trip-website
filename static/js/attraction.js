@@ -4,8 +4,8 @@ const imgIndex = bookingInfo.querySelector('.img-index') // 圖片輪播下面�
 const profile = bookingInfo.querySelector('.profile') // 訂購資訊
 const id = bookingInfo.querySelector('input[name="id"]') // 開始預訂行程的按鈕
 const price = bookingInfo.querySelector('#price') // 選擇上半天或下半天的價格
-const morningRadio = bookingInfo.querySelector('input[value="morning"]') // 選擇上半天
-const afternoonRadio = bookingInfo.querySelector('input[value="afternoon"]') // 選擇下半天
+const morningGuide = bookingInfo.querySelector('input[value="morning"]') // 選擇上半天導覽
+const afternoonGuide = bookingInfo.querySelector('input[value="afternoon"]') // 選擇下半天導覽
 
 // 景點資訊元素
 const info = document.querySelector('.info')
@@ -13,11 +13,11 @@ const addressContainer = info.querySelector('.address')
 const transportContainer = info.querySelector('.transport')
 
 // 導覽價格
-morningRadio.addEventListener('click', ()=>{
+morningGuide.addEventListener('click', ()=>{
     price.innerText = 2000
 
 })
-afternoonRadio.addEventListener('click', ()=>{
+afternoonGuide.addEventListener('click', ()=>{
     price.innerText = 2500
 })
 
@@ -31,7 +31,6 @@ const fetchAttraction = async () => {
     const data = await result.json()
     const attraction = data.data
     const imgUrls = attraction.image[0]
-
     imgUrls.forEach(imgUrl => {
         const img = document.createElement('img')
         const index = document.createElement('div')
@@ -124,3 +123,66 @@ fetchAttraction()
             showNextImg()
         })
     })
+
+
+    
+// booking 行程訂購功能
+const bookingForm = bookingInfo.querySelector('.booking-form')
+
+function bookingItinerary(e){
+    e.preventDefault()
+
+    fetch(userAPI)
+        .then(res => res.json())
+        .then(data => {
+            // 有登入
+            if(data.data){
+                const data = {
+                    attractionId : parseInt(attractionId), 
+                    date : this.querySelector('input[name="date"]').value,
+                    time : this.querySelector('input[name="time"]:checked').value,
+                    price : parseInt(this.querySelector('#price').innerText)
+                }
+                const bookingAPI = '/api/booking'
+                fetch(bookingAPI, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: new Headers({
+                        'Content-Type': 'application/json'
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.ok === true){
+                        const bookingPage = document.querySelector('.nav-link .booking-page')
+                        bookingPage.click()
+                    }else{
+                        alert(data.message)
+                    }
+                })
+            }else{  // 沒登入
+                popUpSignScene()
+                
+            }
+        })
+}
+
+// 點擊預定行程欄位時，確認是否有登入
+const bookingPage = document.querySelector('.booking-page')
+
+function indexSigninCheck(e){
+    e.preventDefault()
+    fetch(userAPI)
+        .then(res => res.json())
+        .then(data => {
+            if(data.data){
+                window.location.assign(bookingPage)
+            }else{
+                popUpSignScene()
+            }
+        })
+
+}
+bookingPage.addEventListener('click', indexSigninCheck)
+
+bookingForm.addEventListener('submit', bookingItinerary)
