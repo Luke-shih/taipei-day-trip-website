@@ -142,3 +142,21 @@ function imageLoaded(){
         readyToLoadAgain = true;
     }
 }
+
+// 點擊預定行程欄位時，確認是否有登入
+const bookingPage = document.querySelector('.booking-page')
+
+function indexSigninCheck(e){
+    e.preventDefault()
+    fetch(userAPI)
+        .then(res => res.json())
+        .then(data => {
+            if(data.data){
+                window.location.assign(bookingPage)
+            }else{
+                popUpSignScene()
+            }
+        })
+
+}
+bookingPage.addEventListener('click', indexSigninCheck)
