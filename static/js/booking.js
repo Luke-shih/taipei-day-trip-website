@@ -31,8 +31,10 @@ document.querySelector('main').style.visibility='hidden'
 function loginStatusCheck() {
     fetch('/api/user', { method: 'GET' }).then(function (response) {
         return response.json();
-    }).then((result) => {   
-        if (result.data !== null) {
+    }).then((result) => {  
+        if(result.data == undefined){
+            window.location.href="/"
+        }else{
             getBookingdata()
             document.querySelector('main').style.visibility='visible'
 
@@ -47,8 +49,6 @@ function loginStatusCheck() {
 
             document.getElementById('signout-btn').style.display = 'inline-block';
             document.getElementById('booking-page').style.display = 'inline-block';
-        } else {
-            window.location.href="/"
         }
     })
 };
