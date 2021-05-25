@@ -4,67 +4,6 @@ body{
     color:#666666;
 }
 
-header{
-    height:54px;
-    margin:auto;
-    position: fixed;
-    top:0;
-    left:0;
-    right: 0;
-    z-index: 999;
-    background-color:#ffffff;
-    overflow: hidden;
-}
-
-.navigation{
-    width: 1200px;
-    height:54px;
-    left:0px;
-    top:0px;
-    display:flex;
-    margin:auto;
-}
-
-.title{
-    width:50%;
-    margin:auto;
-    color:#448800;
-    flex:none;
-}
-
-.title a{
-    font-weight: 700;
-    font-size: 30px;
-    color: #448899;
-    text-decoration: none;
-}
-
-.navbar{
-    flex: none;
-    width: 50%;
-    margin: auto 0;
-    text-align: right;
-}
-
-.navbar ul li{
-    color:#666666;
-    display: inline-block;
-    margin-right: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    visibility:visible;
-    display:none; 
-}
-
-.navbar ul li a{
-    text-decoration: none;
-    color: #666666;   
-
-}
-
-.navbar ul li:hover{
-    border-bottom: 1px solid #666666;
-}
 /* main */
 main{
     margin:54px auto;
@@ -122,9 +61,7 @@ main div{
     font-size: 16px;
     font-weight: bold;
     margin: 0px;
-    padding-bottom: 20px;
-    height: 14px;
-    line-height: 1.5;
+    padding-bottom: 18px;
 }
 
 #date, #time, #address, #price, #pricebase{
