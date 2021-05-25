@@ -251,10 +251,22 @@ def apiBooking():
                 attraction = Attraction.query.filter_by(id=attractionId).first()
                 if attraction is None:
                     return jsonify({"error": True, "message": "景點編號不存在"}), 400
-                else:
+                # 確認同一使用者是否有重複預定同一景點同一天的情況
+                queryExist = Booking.query.filter(Booking.user.any(email=currUser.email)).first()
+                if queryExist != None: # 如果有值，覆蓋原本的
+                    queryExist.attraction_id = attractionId
+                    queryExist.date = date
+                    queryExist.time = time
+                    queryExist.price = price
+                    if queryExist:
+                        db.session.add(queryExist)
+                        db.session.commit()
+                        return jsonify({"ok": True})
+                    else:
+                        raise Exception()
+                else: # 沒有值，直接將數據 copy
                     booking = Booking(date=date, time=time,price=price, attraction=attraction)
                     currUser.bookings.append(booking)
-
                     if booking:
                         db.session.add(currUser)
                         db.session.commit()
@@ -265,29 +277,6 @@ def apiBooking():
                 return jsonify({"error": True, "message": "無法建立預定"}), 400
             except:
                 return jsonify({"error": True, "message": "伺服器錯誤"}), 500
-        else:
-            return jsonify({"error": True, "message": "不允許執行此操作"}), 403
-
-    else:  # GET
-        sessionMail = session.get('email')
-        if sessionMail:
-            currUser = User.query.filter_by(email=sessionMail).first()
-            bookingData = Booking.query.filter(
-                Booking.user.any(email=currUser.email)).first()
-            if bookingData:
-                return jsonify({"data": {
-                    "attraction": {
-                        "id": bookingData.attraction.id,
-                        "name": bookingData.attraction.name,
-                        "address": bookingData.attraction.address,
-                        "image": bookingData.attraction.images
-                    },
-                    "date": bookingData.date,
-                    "time": bookingData.time,
-                    "price": bookingData.price
-                }})
-            else:
-                return jsonify({"error": True, "message": "沒有任何預訂信息"}), 400
         else:
             return jsonify({"error": True, "message": "不允許執行此操作"}), 403
 	
