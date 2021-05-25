@@ -162,14 +162,6 @@ main{
     cursor: pointer;
 }
 
-/* 分割線 */
-.divide{
-    width: 100%;
-    height: 1px;
-    margin: 40px 0;
-    background-color: #e8e8e8;
-}
-
 /* attraction info */
 .info{
     margin: 40px 0;

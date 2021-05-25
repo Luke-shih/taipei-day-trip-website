@@ -1,8 +1,12 @@
-from flask import Flask, request , render_template, jsonify, session
+from flask import Flask, request , render_template, jsonify, session, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import math, os , json, re, pymysql
+from marshmallow.fields import Date, Email
 from flask_cors import CORS
+from datetime import date, datetime
+
+from sqlalchemy.orm import query
 
 app=Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -29,7 +33,6 @@ db = SQLAlchemy()
 ma = Marshmallow()
 
 # ----------------  models  ---------------- #
-
 i = 0
 def default():
     global i
@@ -45,7 +48,22 @@ def default():
     result = math.floor(n)
     return
 
-class travel(db.Model):
+relations = db.table('relations',
+                    db.Column('user_id', db.Integer,db.ForeignKey('user.id')),
+                    db.Column('booking_id', db.Integer,db.ForeignKey('booking.id'))
+                    )   
+
+class travelSchema(ma.Schema):
+	class Meta:
+		fields = ('id', 'name', 'category', 'description', 'address', 'transport', 'mrt', 'latitude', 'longitude', 'images')
+
+travelSchema = travelSchema(many=True)
+relations = db.Table('relations',
+                    db.Column('user_id', db.Integer,db.ForeignKey('user.id')),
+                    db.Column('booking_id', db.Integer,db.ForeignKey('booking.id'))
+                    )
+
+class Attraction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     category = db.Column(db.String(255), nullable=False)
@@ -56,35 +74,49 @@ class travel(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     images = db.Column(db.Text, nullable=False)
+    bookings = db.relationship('Booking', backref='attraction', lazy=True)
 
     def __repr__(self):
-        return f"travel('{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.mrt}', '{self.latitude}', '{self.longitude}', '{self.images}')"
+        return f"Attraction('{self.id}','{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.mrt}', '{self.latitude}', '{self.longitude}', '{self.images}')"
 
-class travelSchema(ma.Schema):
-	class Meta:
-		fields = ('id', 'name', 'category', 'description', 'address', 'transport', 'mrt', 'latitude', 'longitude', 'images')
-
-travelSchema = travelSchema(many=True)
-
-class user(db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    bookings = db.relationship('Booking', secondary=relations, lazy='subquery', backref=db.backref('user', lazy='dynamic'))
 
     def __init__(self, name, email, password):
         self.name = name
         self.email = email
         self.password = password
 
+class Booking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(50), nullable=False)
+    time = db.Column(db.String(20), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    attraction_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('attraction.id'),
+        nullable=False
+    )
+
+    def __repr__(self):
+        return f'Booking({self.date}, {self.time}, {self.price})'
+
 # ----------------  route  ---------------- #
+
+######################### api attractions #########################
 
 @app.route("/api/attractions")
 def attractions():
     page = request.args.get('page', 0, type = int)
     keyword = request.args.get('keyword', None)
     if keyword is None:
-        sql_cmd_keyword = f"""SELECT * FROM travel ORDER BY id LIMIT {int(page)*12},12;"""
+        sql_cmd_keyword = f"""SELECT * FROM attraction ORDER BY id LIMIT {int(page)*12},12;"""
         query = db.engine.execute(sql_cmd_keyword)
         output = travelSchema.dump(query)
         if output != []:
@@ -95,13 +127,13 @@ def attractions():
             return jsonify({"error": True, "message": "error"}), 500
     elif page is None:
         sql_cmd_pageNone = f"""
-            SELECT * FROM travel WHERE name LIKE "%%{keyword}%%"
+            SELECT * FROM attraction WHERE name LIKE "%%{keyword}%%"
         """
         query_data_page = db.engine.execute(sql_cmd_pageNone)
         keywordOutput = travelSchema.dump(query_data_page)
         return jsonify({"data": keywordOutput})
     else:
-        sql_cmd = f"""SELECT * FROM travel WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {int(page)*12},12;"""
+        sql_cmd = f"""SELECT * FROM attraction WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {int(page)*12},12;"""
         query_data = db.engine.execute(sql_cmd)
         output = travelSchema.dump(query_data)
         if output != []:
@@ -110,7 +142,7 @@ def attractions():
                     y['images'] = y['images'].split(",")
                 return jsonify({"nextPage": None, "data": output})
             else:
-                sql_cmd_check = f"""SELECT * FROM travel WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {(int(page)+1)*12},12;"""
+                sql_cmd_check = f"""SELECT * FROM attraction WHERE name LIKE "%%{keyword}%%" ORDER BY id LIMIT {(int(page)+1)*12},12;"""
                 query_data_check = db.engine.execute(sql_cmd_check)
                 output_check = travelSchema.dump(query_data_check)
                 if output_check != []:
@@ -120,9 +152,11 @@ def attractions():
         else:
             return jsonify({"nextPage": None, "data":[]})
 
+######################### api attraction/id #########################
+
 @app.route("/api/attraction/<attractionId>")
 def getAttById(attractionId):
-    data = travel.query.filter_by(id=attractionId).first()
+    data = Attraction.query.filter_by(id=attractionId).first()
 
     if data:
         return jsonify({"data": {
@@ -144,6 +178,8 @@ def getAttById(attractionId):
     else:
         return jsonify({"error": True, "message": "伺服器內部錯誤"}), 500
 
+######################### api user #########################
+
 @app.route("/api/user", methods=['POST', 'PATCH', 'DELETE', 'GET'])
 def login():
     if request.method == 'POST': # signup
@@ -151,11 +187,11 @@ def login():
         email = request.json['email']
         password = request.json['password']
 
-        mail = user.query.filter_by(email=email).first() # 檢查是否有重複
+        mail = User.query.filter_by(email=email).first() # 檢查是否有重複
         if (mail != None):
             return jsonify({"error": True, "message": "email已註冊，請重新輸入"}), 400
         else:
-            addUser = user(name, email, password)
+            addUser = User(name, email, password)
             db.session.add(addUser)
             db.session.commit()
             return jsonify({"ok": True}), 201
@@ -164,7 +200,7 @@ def login():
         email = request.json['email']
         password = request.json['password']
 
-        mail = user.query.filter_by(email=email).first()
+        mail = User.query.filter_by(email=email).first()
         if mail is None:
             return jsonify({"error": True, "message": "沒有此用戶"}), 400
         else:
@@ -181,7 +217,7 @@ def login():
     else: # GET
         sesson = session.get('email')
         if sesson:
-            query = user.query.filter_by(email=sesson).first()
+            query = User.query.filter_by(email=sesson).first()
             return jsonify({"data": {
                 "id": query.id,
                 "name": query.name,
@@ -190,6 +226,92 @@ def login():
         else:
             return jsonify({"message": None})
 
+######################### api Booking #########################
+
+@app.route("/api/booking", methods=['GET', 'POST', 'DELETE'])
+def apiBooking():
+    if request.method == 'DELETE':
+        sess = session.get('email')
+        if sess:
+            currUser = User.query.filter_by(email=sess).first()
+            checkExist = Booking.query.filter(
+                Booking.user.any(email=currUser.email)).first()
+            if checkExist:
+                db.session.delete(checkExist)
+                db.session.commit()
+                return jsonify({"ok": True})
+            else:
+                return jsonify({"error": True, "message": "沒有任何要刪除的預訂信息"}), 400
+        else:
+            return jsonify({"error": True, "message": "不允許執行此操作"}), 403
+
+    elif request.method == 'POST':
+        sessionMail = session.get('email')
+        if sessionMail:
+            attractionId = request.json['attractionId']
+            date = request.json['date']
+            time = request.json['time']
+            price = request.json['price']
+            try:
+                currUser = User.query.filter_by(email=sessionMail).first()
+                attraction = Attraction.query.filter_by(id=attractionId).first()
+                if attraction is None:
+                    return jsonify({"error": True, "message": "景點編號不存在"}), 400
+                # 確認同一使用者是否有重複預定同一景點同一天的情況
+                queryExist = Booking.query.filter(Booking.user.any(email=currUser.email)).first()
+                if queryExist != None: # 如果有值，覆蓋原本的
+                    queryExist.attraction_id = attractionId
+                    queryExist.date = date
+                    queryExist.time = time
+                    queryExist.price = price
+                    if queryExist:
+                        db.session.add(queryExist)
+                        db.session.commit()
+                        return jsonify({"ok": True})
+                    else:
+                        raise Exception()
+                else: # 沒有值，直接將數據 copy
+                    booking = Booking(date=date, time=time,price=price, attraction=attraction)
+                    currUser.bookings.append(booking)
+                    if booking:
+                        db.session.add(currUser)
+                        db.session.commit()
+                        return jsonify({"ok": True})
+                    else:
+                        raise Exception()
+            except Exception:
+                return jsonify({"error": True, "message": "無法建立預定"}), 400
+            except:
+                return jsonify({"error": True, "message": "伺服器錯誤"}), 500
+        else:
+            return jsonify({"error": True, "message": "不允許執行此操作"}), 403
+
+    else:  # GET
+        sess = session.get('email')
+        if sess:
+            currUser = User.query.filter_by(email=sess).first()
+            bookingData = Booking.query.filter(
+                Booking.user.any(email=currUser.email)).first()
+            if bookingData:
+                db.session.commit()
+                return jsonify({"data": {
+                    "attraction": {
+                        "id": bookingData.attraction.id,
+                        "name": bookingData.attraction.name,
+                        "address": bookingData.attraction.address,
+                        "image": bookingData.attraction.images
+                    },
+                    "date": bookingData.date,
+                    "time": bookingData.time,
+                    "price": bookingData.price
+                }})
+                
+            else:
+                return jsonify({"error": True, "message": "沒有任何預訂信息"}), 400
+
+        else:
+            return jsonify({"error": True, "message": "不允許執行此操作"}), 403
+	
 if __name__ == '__main__':
 	with app.app_context():
 		db.init_app(app)

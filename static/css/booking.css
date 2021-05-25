@@ -1,0 +1,255 @@
+body{
+    font-family: 'Noto Sans TC', sans-serif;
+    margin:0px;
+    color:#666666;
+}
+
+/* main */
+main{
+    margin:54px auto;
+    width: 1200px;
+}
+
+main div{
+    width: 85%;
+    margin:0 auto;
+
+}
+.msgContent{
+    margin-top: 35px;
+}
+.headline{
+    color: #666;
+    font-weight: 700;
+    font-size: 19px;
+    padding-top: 46px;
+    margin: 0;
+}
+
+.bookingOrder{
+    padding-top:35px;
+    padding-bottom: 40px;
+    width: 100%;
+    display: flex;
+}
+.img{
+    flex:none;
+    width: 266px;
+    height: 200px;
+}
+.image{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info{
+    padding-left: 22px;
+    padding-top: 0px;
+    color:#666666;
+}
+
+.info h3{
+    color: #448899;
+    margin-top: 0px;
+    margin-bottom: 30px;
+    height: 14px;
+    line-height: 1.2;
+}
+
+.info div{
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0px;
+    padding-bottom: 18px;
+}
+
+#date, #time, #address, #price, #pricebase{
+    font-weight: normal;
+}
+.deleteBtn{
+    flex:none;
+    width: 30px;
+    float: right;
+    margin-bottom: 25px;
+}
+.contactForm{
+    padding: 37px 0px;
+    margin-left:0px;
+}
+.contactForm h3, .paymentArea h3{
+    margin-top:0px;
+    margin-bottom: 24px;
+}
+.formField{
+    margin:10px 0px;
+
+}
+form input{
+    color:#757575;
+    font-size: 16px;
+    font-size: 16px;
+    line-height: 13px;
+    outline: none;
+}
+.contactForm p{
+    margin-top:20px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+.paymentArea{
+    padding: 37px 0px;
+    margin-left:0px;
+}
+.billing{
+    width: 100%;
+    text-align: end;
+    padding:35px 0px 8px;
+}
+
+.billing h4{
+    margin-top:0px;
+    margin-bottom:25px;
+    font-size: 16px;
+}
+
+input{
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #E8E8E8;
+    width: 177.75px;
+}
+
+button{
+    background-color: #448899;
+    border: transparent;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 10px;
+    width: 173px;
+    margin-top: 0px;
+    outline:none;
+}
+
+/* popUp form */
+.popUp{
+    display: none;
+    position: fixed;
+    z-index: 10;
+    top: 20vh;
+    left: calc((100% - 340px) / 2);
+    text-align: center;
+    width: 310px;
+    background-color: #fff;
+    padding: 25px 15px 15px 15px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 60px #AAAAAA;
+}
+
+
+.closeBtn{
+    position: absolute;
+    top: 27px;
+    right: 17px;  
+}
+
+.subject{
+    text-align: center;
+    color: #666666;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    margin-top: 0px;
+}
+
+.popUp input{
+    display: block;
+    width: 280px;
+    height:15px;
+    font-size: 16px;
+    padding: 14px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    outline: none;
+}
+
+.popBtn{
+    display: block;
+    width: 100%;
+    line-height: 19px;
+    font-size: 19px;
+    padding: 12px;
+    color: #fff;
+    background-color: #448899;
+    border: 1px solid #448899;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    outline: none;
+}
+
+.ErrorMsg, .Msg{
+    font-weight: 700;
+    color: #448899;
+    font-size: 19px;
+    margin:0px;
+    line-height: 2em;
+}
+
+.registerBtn, .loginBtn{
+    display: inline-block;
+    color: #666;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pageShadow{
+    z-index: 3;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #808080;;
+    opacity: .25;
+}
+
+#registerError, #registerDuplicated, #registerDone{
+    display: none;
+}
+
+#loginError{
+    display: none;
+}
+
+@media (max-width:1200px){
+    .navigation{width:94.5%}
+    .navbar ul{padding:0}
+    .navbar{width:50%}
+    .title{width:50%}
+    main{width:90%}
+    main div{width: 100%}
+}
+
+@media (max-width: 600px){
+    .navbar ul li{margin-right:5px}
+    main{width:90%}
+    .bookingOrder{
+        display: block;
+        padding: 0px;}
+    main div{width: 100%}
+    .img{
+        width: 100%;
+        padding:7% 0%;
+    }
+    .info{
+        padding-left: 0px;
+    }
+
+}
