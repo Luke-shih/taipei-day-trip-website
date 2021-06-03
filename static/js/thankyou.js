@@ -20,7 +20,6 @@ function loginStatusCheck() {
     })
 };
 
-
 loginStatusCheck();
 
 function userDetails(data){
@@ -47,8 +46,6 @@ function userLogout() {
         }
     })
 }
-
-
 
 function getOrderdata() {
     let Url = new URL(location.href);
@@ -78,7 +75,5 @@ function getOrderdata() {
             let orderPrice = document.getElementById("order-price")
             orderPrice.textContent = result.data["price"]
         };
-        
     });
 }
-
