@@ -1,11 +1,11 @@
 from flask import Flask, request , render_template, jsonify, session, url_for, redirect
+from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import math, os , json, re, pymysql
+import math, os , json, re, pymysql, requests
 from marshmallow.fields import Date, Email
 from flask_cors import CORS
 from datetime import date, datetime
-
 from sqlalchemy.orm import query
 
 app=Flask(__name__)
@@ -13,7 +13,7 @@ CORS(app, supports_credentials=True)
 app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
 app.config["TEMPLATES_AUTO_RELOAD"]=True # True 當 flask 偵測到 template 有修改會自動更新
 app.config["JSON_SORT_KEYS"]=False # False 不以物件名稱進行排序顯示
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:1234@localhost:3306/data"
 app.secret_key = os.urandom(24)
 
 @app.route("/")
@@ -103,9 +103,36 @@ class Booking(db.Model):
         db.ForeignKey('attraction.id'),
         nullable=False
     )
+    orders = db.relationship('Order', backref='orderBooking', lazy=True)
 
     def __repr__(self):
         return f'Booking({self.date}, {self.time}, {self.price})'
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(255))
+    price = db.Column(db.Integer)
+    status = db.Column(db.Integer)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=True)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'), nullable=True)
+
+    def __repr__(self):
+        return f'Order({self.number}, {self.status}, {self.price})'
+
+class Contact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=True)
+    email = db.Column(db.String(100), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    orders = db.relationship('Order', backref='orderContact', lazy=True)
+
+    def __init__(self, name, email, phone):
+        self.name = name
+        self.email = email
+        self.phone = phone
+
+    def __repr__(self):
+        return f'Contact({self.name}, {self.email}, {self.phone})'
 
 # ----------------  route  ---------------- #
 
@@ -311,6 +338,128 @@ def apiBooking():
 
         else:
             return jsonify({"error": True, "message": "不允許執行此操作"}), 403
+
+######################### api order #########################
+
+@app.route('/api/orders', methods=['POST'])
+def order():
+    sess = session.get('email')
+    orderData = request.json['order']
+    # print(orderData)
+    contactName = orderData['trip']['attraction']
+    # print(contactName)
+    if sess:
+        prime = request.json["prime"]
+        orderData = request.json['order']
+        contact = request.json['contact']
+
+        contactName = contact['name']
+        contactEmail = contact['email']
+        contactPhone = contact['phone']
+        orderDetails = request.json['order']
+        # print(orderDetails['trip'])
+
+        booking = Booking.query.filter_by(attraction_id=orderDetails['trip']['attraction']['id']).first()
+        contact = Contact(contactName, contactEmail, contactPhone)
+        if contact:
+            db.session.add(contact)
+            db.session.commit()
+        else:
+            return jsonify({"error": True, "message": "contact information error"}), 400
+
+        order = Order(number=prime, price=orderData['price'],status='0', orderBooking=booking, orderContact=contact)
+        try:
+            if order:
+                db.session.add(order)
+                db.session.commit()
+            else:
+                raise Exception()
+        except Exception:
+            print("跑到這個錯誤")
+            return jsonify({"error": True, "message": "contact information error"}), 400
+        except:
+            return jsonify({"error": True, "message": "伺服器錯誤"}), 500
+        print("以上運作3")
+        url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": "partner_7YatAnNvBZAFk9YDjggstrfQk1RhvIqvqfbPsJnkhcs3M0fXTJaozrlv"
+        }
+
+        primeData = {
+            "prime": prime,
+            "partner_key": "partner_7YatAnNvBZAFk9YDjggstrfQk1RhvIqvqfbPsJnkhcs3M0fXTJaozrlv",
+            "merchant_id": "s1415937_CTBC",
+            "details": "",
+            "amount": orderData['price'],
+            "cardholder": {
+                "name": contactName,
+                "email": contactEmail,
+                "national_id": "A123456789",
+                "phone_number": contactPhone  
+            }
+        }
+        result = requests.post(
+            url, data=json.dumps(primeData), headers=headers)
+        rawData = result.json()
+
+        if rawData['status'] == 0:
+            query = Order.query.filter_by(number=prime).first()
+            if query:
+                query.status = 1
+                db.session.commit()
+                return jsonify({"data": {
+                    "number": order.number,
+                    "payment": {
+                        "status": rawData['status'],
+                        "message": "付款成功"
+                    }
+                }})
+            else:
+                return jsonify({"error": True, "message": "update status order error更新訂單狀態錯誤??"}), 400
+        else:
+            return jsonify({"error": True, "number": order.number, "message": rawData["msg"]}), 400
+    else:
+        return jsonify({"error": True, "message": "不允許執行此操作"}), 403
+
+@app.route('/api/order/<string:orderNumber>')
+def orderNumber(orderNumber):
+    sess = session.get('email')
+    if sess:
+        if orderNumber:
+            currUser = User.query.filter_by(email=sess).first()
+            contactData = Contact.query.filter_by(email=currUser.email).first()
+            bookingData = Booking.query.filter(Booking.user.any(email=currUser.email)).first()
+            if bookingData:
+                attractionData = Attraction.query.filter_by(
+                    id=bookingData.attraction_id).first()
+                order = Order.query.filter_by(number=orderNumber).first()
+                return jsonify({"data": {
+                    "number": order.number,
+                    "price": order.price,
+                    "trip": {
+                        "attraction": {
+                            "id": attractionData.id,
+                            "name": attractionData.name,
+                            "address": attractionData.address,
+                            "images": attractionData.images
+                        },
+                        "date": bookingData.date,
+                        "time": bookingData.time
+                    },
+                    "contact": {
+                        "name": contactData.name,
+                        "email": contactData.email,
+                        "phone": contactData.phone
+                    },
+                    "status": 1
+                }})
+            else:
+                return jsonify({"error": True, "status": "failed", "message": None})
+        else:
+            return redirect(url_for('main.index'))
+    else:
+        return jsonify({"error": True, "status": "UnAutherize", "message": "you are not allow to do this action"}), 403
 	
 if __name__ == '__main__':
 	with app.app_context():

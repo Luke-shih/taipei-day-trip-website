@@ -9,19 +9,9 @@ ma = Marshmallow()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:1234@localhost:3306/data"
                                                       # user_name/password/IP/db_name
 
-relations = db.table('relations',
-                    db.Column('user_id', db.Integer,db.ForeignKey('user.id')),
-                    db.Column('booking_id', db.Integer,db.ForeignKey('booking.id'))
-                    )   
-
-class travelSchema(ma.Schema):
-	class Meta:
-		fields = ('id', 'name', 'category', 'description', 'address', 'transport', 'mrt', 'latitude', 'longitude', 'images')
-
-travelSchema = travelSchema(many=True)
 
 relations = db.Table('relations',
                     db.Column('user_id', db.Integer,db.ForeignKey('user.id')),
@@ -43,6 +33,34 @@ class Attraction(db.Model):
 
     def __repr__(self):
         return f"Attraction('{self.id}','{self.name}', '{self.category}', '{self.description}', '{self.address}', '{self.transport}', '{self.mrt}', '{self.latitude}', '{self.longitude}', '{self.images}')"
+
+def data():
+    with open("taipei-attractions.json", mode="r", encoding="utf-8") as file:
+        result = json.load(file)
+    finalData = result["result"]["results"]
+
+    for result in finalData:
+        name = result["stitle"]
+        category = result["CAT2"]
+        description = result['xbody']
+        address = result['address']
+        transport = result['info']
+        mrt = result['MRT']
+        latitude = result['latitude']
+        longitude = result["longitude"]
+        result = ",".join(result["file"].replace("http", " http").split(' ')[1:])
+        match = re.findall(r'http.*jpg|http.*png', result, re.I)
+        images = ",".join(match)
+
+        travel = Attraction(name=name, category=category, description=description, address=address, transport=transport, mrt=mrt, latitude=latitude, longitude=longitude, images=images)
+        db.session.add(travel)
+        db.session.commit()
+
+class travelSchema(ma.Schema):
+	class Meta:
+		fields = ('id', 'name', 'category', 'description', 'address', 'transport', 'mrt', 'latitude', 'longitude', 'images')
+
+travelSchema = travelSchema(many=True)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,31 +86,36 @@ class Booking(db.Model):
         db.ForeignKey('attraction.id'),
         nullable=False
     )
+    orders = db.relationship('Order', backref='orderBooking', lazy=True)
 
     def __repr__(self):
         return f'Booking({self.date}, {self.time}, {self.price})'
 
-def data():
-    with open("taipei-attractions.json", mode="r", encoding="utf-8") as file:
-        result = json.load(file)
-    finalData = result["result"]["results"]
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(255))
+    price = db.Column(db.Integer)
+    status = db.Column(db.Integer)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=True)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'), nullable=True)
 
-    for result in finalData:
-        name = result["stitle"]
-        category = result["CAT2"]
-        description = result['xbody']
-        address = result['address']
-        transport = result['info']
-        mrt = result['MRT']
-        latitude = result['latitude']
-        longitude = result["longitude"]
-        result = ",".join(result["file"].replace("http", " http").split(' ')[1:])
-        match = re.findall(r'http.*jpg|http.*png', result, re.I)
-        images = ",".join(match)
+    def __repr__(self):
+        return f'Order({self.number}, {self.status}, {self.price})'
 
-        travel = Attraction(name=name, category=category, description=description, address=address, transport=transport, mrt=mrt, latitude=latitude, longitude=longitude, images=images)
-        db.session.add(travel)
-        db.session.commit()
+class Contact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=True)
+    email = db.Column(db.String(100), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    orders = db.relationship('Order', backref='orderContact', lazy=True)
+
+    def __init__(self, name, email, phone):
+        self.name = name
+        self.email = email
+        self.phone = phone
+
+    def __repr__(self):
+        return f'Contact({self.name}, {self.email}, {self.phone})'
 
 if __name__ == '__main__':
     with app.app_context():

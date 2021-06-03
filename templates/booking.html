@@ -115,18 +115,25 @@
                     <div class='paymentArea'>
                         <h3>信用卡付款資訊</h3>
 
-                        <div class='formField'>
+                        <!-- <div class='formField'>
                             <label for='cardNumber'>卡片號碼：</label>
-                            <input type="password" name="cardNumber" id="cardNo" placeholder= "**** **** **** ****" autocomplete="off" required>
+                            <input type="password" name="cardNumber" id="card-number" placeholder= "**** **** **** ****" autocomplete="off" required>
                         </div>
                         <div class='formField'>
                             <label for='expirationDate'>過期時間：</label>
-                            <input type="text" name="expirationDate" id="expireDate" placeholder="MM / YY" maxlength="5"
+                            <input type="text" name="expirationDate" id="card-expiration-date" placeholder="MM / YY" maxlength="5"
                                 pattern="(?:0[1-9]|1[0-2])/[0-9]{2}" required>
                         </div>
                         <div class='formField'>
                             <label for='cardCVV'>驗證密碼：</label>
-                            <input type="text" name="cvvCode" id="cvv" placeholder="CVV" maxlength="3" required>
+                            <input type="text" name="CCV" id="card-ccv" placeholder="CCV" maxlength="3" required>
+                        </div> -->
+
+                        <div class="renderCard">
+                            <div class="wrapCard"> 卡片號碼： <div class="tpfield" id="card-number"></div></div>
+                            <div class="wrapCard"> 有效日期： <div class="tpfield" id="card-expiration-date"></div></div>
+                            <div class="wrapCard"> 驗證密碼： <div class="tpfield" id="card-ccv"></div></div>
+                            
                         </div>
 
                     </div>
@@ -134,7 +141,7 @@
 
                     <div class="billing">
                         <h4>總價：新台幣 <span id="amount"></span> 元</h4>
-                        <button type="submit">確認訂購並付款</button>
+                        <button type="submit" id="paySubmit">確認訂購並付款</button>
                     </div>
                 </form>
             </section>
@@ -145,6 +152,7 @@
         <p>COPYRIGHT © 2021 台北一日遊</p>
     </footer>
 
+<script src="https://js.tappaysdk.com/tpdirect/v5.7.0"></script>
 <script src="../static/js/sign.js"></script>
 <script src="../static/js/booking.js"></script>
 </body>
