@@ -22,7 +22,7 @@ afternoonGuide.addEventListener('click', ()=>{
 })
 
 // fetch api
-const ipUrl = "52.194.136.133";
+const ipUrl = "localhost";
 const attractionId = document.URL.split('/').slice(-1);
 const apiUrl = `http://${ipUrl}:3000/api/attraction/` + attractionId
 
