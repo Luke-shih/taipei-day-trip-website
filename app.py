@@ -387,12 +387,12 @@ def order():
         url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
         headers = {
             "Content-Type": "application/json",
-            "x-api-key": partnerKey
+            "x-api-key": "partner_7YatAnNvBZAFk9YDjggstrfQk1RhvIqvqfbPsJnkhcs3M0fXTJaozrlv",
         }
 
         primeData = {
             "prime": prime,
-            "partner_key": partnerKey,
+            "partner_key": "partner_7YatAnNvBZAFk9YDjggstrfQk1RhvIqvqfbPsJnkhcs3M0fXTJaozrlv",
             "merchant_id": "s1415937_CTBC",
             "details": "",
             "amount": orderData['price'],
