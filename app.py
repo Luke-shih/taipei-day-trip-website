@@ -10,6 +10,7 @@ from sqlalchemy.orm import query
 
 from dotenv import load_dotenv
 load_dotenv()
+partnerKey = os.getenv("PARTNER_KEY")
 
 app=Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -386,12 +387,12 @@ def order():
         url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
         headers = {
             "Content-Type": "application/json",
-            "x-api-key": os.getenv("PARTNER_KEY")
+            "x-api-key": partnerKey
         }
 
         primeData = {
             "prime": prime,
-            "partner_key": os.getenv("PARTNER_KEY"),
+            "partner_key": partnerKey,
             "merchant_id": "s1415937_CTBC",
             "details": "",
             "amount": orderData['price'],
