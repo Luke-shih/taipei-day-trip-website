@@ -113,7 +113,6 @@ function signin(e){
 signupForm.addEventListener('submit', signup)
 signinForm.addEventListener('submit', signin)
 
-
 // logout
 function signout(){
     fetch(userAPI, {
