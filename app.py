@@ -11,13 +11,14 @@ from sqlalchemy.orm import query
 from dotenv import load_dotenv
 load_dotenv()
 partnerKey = os.getenv("PARTNER_KEY")
+lukeMySQL = os.getenv("LUKE_MYSQL")
 
 app=Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config["JSON_AS_ASCII"]=False # False 避免中文顯示為ASCII編碼
 app.config["TEMPLATES_AUTO_RELOAD"]=True # True 當 flask 偵測到 template 有修改會自動更新
 app.config["JSON_SORT_KEYS"]=False # False 不以物件名稱進行排序顯示
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://root:@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://root:{lukeMySQL}@localhost:3306/data"
 app.secret_key = os.urandom(24)
 
 @app.route("/")
@@ -387,12 +388,12 @@ def order():
         url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
         headers = {
             "Content-Type": "application/json",
-            "x-api-key": "partner_7YatAnNvBZAFk9YDjggstrfQk1RhvIqvqfbPsJnkhcs3M0fXTJaozrlv",
+            "x-api-key": partnerKey
         }
 
         primeData = {
             "prime": prime,
-            "partner_key": "partner_7YatAnNvBZAFk9YDjggstrfQk1RhvIqvqfbPsJnkhcs3M0fXTJaozrlv",
+            "partner_key": partnerKey,
             "merchant_id": "s1415937_CTBC",
             "details": "",
             "amount": orderData['price'],
