@@ -33,7 +33,6 @@ function userDetails(data){
 function userLogout() {
     fetch('/api/user', { method: 'DELETE' }).then(function (response) {
         return response.json();
-        console.log(response)
     }).then((result) => {
         console.log(result);
         let logoutDone = result['ok'];
@@ -50,7 +49,7 @@ function userLogout() {
 function getOrderdata() {
     let Url = new URL(location.href);
     let orderNumber = Url.searchParams.get('number', null)
-    apiUrl= `/api/order/${orderNumber}`;
+    apiUrl=`/api/order/${orderNumber}`;
 
     fetch( apiUrl, { method: 'GET' }).then(function (response) {
         return response.json();
@@ -76,4 +75,15 @@ function getOrderdata() {
             orderPrice.textContent = result.data["price"]
         };
     });
+}
+// 刪除預定行程
+function deleteBooking() {
+    fetch("api/booking", { method: "DELETE" })
+      .then(function (response) {
+        return response.json();
+      })
+  }
+
+if (getOrderdata() !== null){
+    deleteBooking()
 }
