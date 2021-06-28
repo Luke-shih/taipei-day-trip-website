@@ -15,3 +15,7 @@ CVV : 123
 - TapPay
 - Responsive Web Design
 
+# 功能介紹
+- 每次顯示12筆景點，當滾輪滑到最下方則再往後載入12筆資料
+
+![](https://imgur.com/5XqT006)
