@@ -8,13 +8,6 @@ Date : 01/23
 CVV : 123
 或可自行註冊帳號亦可使用
 
-# 使用技術
-- Python Flask
-- MySQL
-- AWS EC2
-- TapPay
-- Responsive Web Design
-
 # 功能介紹
 - 每次顯示12筆景點，當滾輪滑到最下方則再往後載入12筆資料，當點擊景點會跳轉至景點介紹以及訂購資訊頁面。
 ![1](https://imgur.com/5XqT006)
@@ -25,3 +18,10 @@ CVV : 123
 ![]()
 - 訂購系統
 -- 使用者可以進入各個景點頁面，訂購、刪除購物車行程，並在預定行程頁面結帳。
+
+# 使用技術
+- Python Flask
+- MySQL
+- AWS EC2
+- TapPay
+- Responsive Web Design
