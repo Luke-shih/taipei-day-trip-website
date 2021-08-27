@@ -9,7 +9,7 @@ ma = Marshmallow()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:1234@localhost:3306/data"
                                                       # user_name/password/IP/db_name
 
 
@@ -48,8 +48,8 @@ def data():
         mrt = result['MRT']
         latitude = result['latitude']
         longitude = result["longitude"]
-        result = ",".join(result["file"].replace("http", " http").split(' ')[1:])
-        match = re.findall(r'http.*jpg|http.*png', result, re.I)
+        result = ",".join(result["file"].replace("http", " https").split(' ')[1:])
+        match = re.findall(r'https.*jpg|https.*png', result, re.I)
         images = ",".join(match)
 
         travel = Attraction(name=name, category=category, description=description, address=address, transport=transport, mrt=mrt, latitude=latitude, longitude=longitude, images=images)
