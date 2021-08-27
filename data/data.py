@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-import json, math, re
+import json, re
 from datetime import datetime
 from flask_marshmallow import Marshmallow
 
@@ -9,7 +9,7 @@ ma = Marshmallow()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:1234@localhost:3306/data"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:@localhost:3306/data"
                                                       # user_name/password/IP/db_name
 
 
